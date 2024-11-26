@@ -3,13 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>WasteWise Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        /* Navigation bar */
+        .navbar {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar .title {
+            font-size: 24px;
+            text-align: center;
+            flex: 1;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin-right: 20px;
+            font-size: 16px;
+        }
+
+        .navbar a:hover {
+            text-decoration: underline;
+        }
+
+        /* Dashboard container */
+        .dashboard-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px;
+        }
+
+        /* Feature cards */
+        .feature-card {
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            margin: 15px;
+            padding: 20px;
+            width: 250px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: scale(1.05);
+        }
+
+        .feature-card h3 {
+            color: #4CAF50;
+        }
+
+        .feature-card p {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .feature-card a {
+            text-decoration: none;
+            color: white;
+            background-color: #4CAF50;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            display: inline-block;
+        }
+
+        .feature-card a:hover {
+            background-color: #097fed;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome, {{ username }}!</h1>
-    <p>EDIT THIS LATER PLEASE AND THANK YOU</p>
 
-    <!-- Logout link -->
-    <a href="{{ url_for('views.logout') }}">Logout</a>
+    <!-- Navbar -->
+    <div class="navbar">
+        <div class="title">Welcome to WasteWise, {{ username }}!</div>
+        <a href="{{ url_for('views.logout') }}">Logout</a>
+    </div>
+
+    <!-- Dashboard Container -->
+    <div class="dashboard-container">
+        <!-- Interactive Map -->
+        <div class="feature-card">
+            <h3>Interactive Map</h3>
+            <p>View restrooms and trash bins on a map. Filter and get detailed information.</p>
+            <a href="/map">Access Map</a>
+        </div>
+
+        <!-- Search Features -->
+        <div class="feature-card">
+            <h3>Search Facilities</h3>
+            <p>Find facilities nearby or search by name, location, or store association.</p>
+            <a href="/search">Search</a>
+        </div>
+
+        <!-- Facility Inventory Management -->
+        <div class="feature-card">
+            <h3>Manage Facilities</h3>
+            <p>Store owners can manage facilities with full CRUD operations.</p>
+            <a href="/manage-facilities">Manage</a>
+        </div>
+
+        <!-- Facility List -->
+        <div class="feature-card">
+            <h3>Facility List</h3>
+            <p>View a comprehensive list of facilities in your selected area.</p>
+            <a href="/list">View List</a>
+        </div>
+
+        <!-- Status Survey -->
+        <div class="feature-card">
+            <h3>Status Survey</h3>
+            <p>Rate facilities for cleanliness and occupancy. Add comments.</p>
+            <a href="/survey">Take Survey</a>
+        </div>
+
+        <!-- User Feedback -->
+        <div class="feature-card">
+            <h3>Feedback</h3>
+            <p>Report issues, suggest features, and provide feedback for improvement.</p>
+            <a href="/feedback">Submit Feedback</a>
+        </div>
+
+        <!-- Notification Settings -->
+        <div class="feature-card">
+            <h3>Notifications</h3>
+            <p>Customize notification settings for updates and feature changes.</p>
+            <a href="/notifications">Manage Notifications</a>
+        </div>
+    </div>
+
 </body>
 </html>

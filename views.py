@@ -81,3 +81,6 @@ def logout():
     flash("You have been logged out. Have a good day!", "success")
     return redirect(url_for("views.login"))
 
+
+
+
