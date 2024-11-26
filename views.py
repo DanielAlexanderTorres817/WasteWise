@@ -10,6 +10,6 @@ def landing():
 def login():
     return render_template("login.html")
 
-# @views.route("/home")
+# @views.route("/dashboard")
 # def home():
-#     return render_template("home.html")
+#     return render_template("dashboard.html")
