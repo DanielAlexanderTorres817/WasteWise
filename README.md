@@ -71,3 +71,14 @@ Fork, submit issues, or create pull requests. Contributions are welcome!
 ## License
 
 This project is licensed under the **MIT License**. See the `LICENSE` file for details.
+
+---
+
+## Login Info
+
+To access the application, use the following credentials:
+
+- **Username**: `ADMIN`
+- **Password**: `ADMIN`
+
+Feel free to register and create your own accounts as well!
