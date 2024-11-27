@@ -83,4 +83,13 @@ def logout():
 
 
 
+#map 
+@views.route("/map")
+def map_view():
+    
+    if "user" not in session:
+        flash("You need to log in to access the map.", "error")
+        return redirect(url_for("views.login"))
+
+    return render_template("map.html")
 
