@@ -110,6 +110,14 @@
             console.log(`Filtering markers by type: ${type}`);
             // Add logic to filter markers
         }
+
+        var locations = {{ locations|tojson | safe }};
+
+        // Loop through the locations and add markers
+        locations.forEach(function(element) {
+            var marker = L.marker([element.latitude, element.longitude]).addTo(map);
+            marker.bindPopup("<strong>" + element.facility_name + "</strong><br>Location: " + element.location_type);
+        });
     </script>
 </body>
 </html>

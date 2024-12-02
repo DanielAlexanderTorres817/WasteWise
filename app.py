@@ -1,4 +1,5 @@
-from flask import Flask
+import csv
+from flask import Flask, jsonify, render_template
 from views import views
 import pandas as pd
 from flask_sqlalchemy import SQLAlchemy
@@ -103,6 +104,28 @@ def show_restrooms():
         </html>
     """
 
+@app.route('/map')
+def show_map():
+    print('before')
+    # List to hold restroom data
+    locations = []
+
+    # Open the CSV file and read it
+    with open('Public_Restrooms_20241201.csv', newline='', encoding='utf-8') as csvfile:
+        csvreader = csv.DictReader(csvfile)
+        for row in csvreader:
+            locations.append({
+                'facility_name': row.get('Facility Name', 'Unknown name'),
+                'latitude': float(row['Latitude']) if row['Latitude'] else 0,
+                'longitude': float(row['Longitude']) if row['Longitude'] else 0,
+                'location_type': row.get('Location Type', 'Unknown type')
+            })
+
+    print('after')
+    print(locations[0])
+
+    # Render the map page, passing locations as JSON-compatible data
+    return render_template('map.html', locations=locations)
 
 if __name__ == "__main__":
     app.run(debug=True, port = 5000)
