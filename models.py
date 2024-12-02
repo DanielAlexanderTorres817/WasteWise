@@ -8,6 +8,26 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)  
     password = db.Column(db.String(200), nullable=False)  
 
+class Restroom(db.Model):
+    __tablename__ = 'restrooms'  # Optional: explicitly name the table
     
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)  # Auto-incrementing ID
+    facility_name = db.Column(db.String(200), nullable=False)
+    location_type = db.Column(db.String(100))
+    operator = db.Column(db.String(100))
+    status = db.Column(db.String(50))
+    open = db.Column(db.String(50))
+    hours_of_operation = db.Column(db.String(100))
+    accessibility = db.Column(db.String(50))
+    restroom_type = db.Column(db.String(50))
+    changing_stations = db.Column(db.String(100))
+    additional_notes = db.Column(db.Text)
+    website = db.Column(db.String(200))
+    latitude = db.Column(db.Float)
+    longitude = db.Column(db.Float)
+    location_1 = db.Column(db.String(100))  # This could store point data as text for now
+    
+    def __repr__(self):
+        return f"<Restroom {self.facility_name}>"
 
    
