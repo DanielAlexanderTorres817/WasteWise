@@ -32,6 +32,7 @@ Ensure you have the following installed:
 3. **Install Dependencies**:
     ```bash
     pip install flask
+    pip install pandas
     ```
 
     If there’s a `requirements.txt` file, use:
