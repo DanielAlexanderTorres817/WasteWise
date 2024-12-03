@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facility List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            color: #4CAF50;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: white;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        a {
+            text-decoration: none;
+            color: #4CAF50;
+        }
+
+        .no-data {
+            text-align: center;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Facility List</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Facility Name</th>
+                <th>Location Type</th>
+                <th>Status</th>
+                <th>Operator</th>
+                <th>Open</th>
+                <th>Hours of Operation</th>
+                <th>Accessibility</th>
+                <th>Restroom Type</th>
+                <th>Changing Stations</th>
+                <th>Additional Notes</th>
+                <th>Website</th>
+                <th>Address</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if facilities %}
+                {% for facility in facilities %}
+                <tr>
+                    <td>{{ facility.facility_name }}</td>
+                    <td>{{ facility.location_type }}</td>
+                    <td>{{ facility.status }}</td>
+                    <td>{{ facility.operator or 'N/A' }}</td>
+                    <td>{{ facility.open or 'N/A' }}</td>
+                    <td>{{ facility.hours_of_operation or 'N/A' }}</td>
+                    <td>{{ facility.accessibility or 'N/A' }}</td>
+                    <td>{{ facility.restroom_type or 'N/A' }}</td>
+                    <td>{{ facility.changing_stations or 'N/A' }}</td>
+                    <td>{{ facility.additional_notes or 'N/A' }}</td>
+                    <td>
+                        {% if facility.website %}
+                            <a href="{{ facility.website }}" target="_blank">Visit</a>
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td>{{ facility.location_1 or 'N/A' }}</td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="12" class="no-data">No facilities available</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+</body>
+</html>
