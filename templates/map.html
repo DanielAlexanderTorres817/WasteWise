@@ -31,7 +31,7 @@
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
             overflow-y: auto;
         }
-        button {
+        .filter-button {
             display: block;
             margin-top: 10px;
             padding: 10px;
@@ -40,8 +40,12 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            text-align: center;
         }
-        button:hover {
+        .filter-button.active {
+            background-color: #097fed;
+        }
+        .filter-button:hover {
             background-color: #097fed;
         }
     </style>
@@ -49,9 +53,9 @@
 <body>
     <div class="sidebar">
         <h2>Filters</h2>
-        <button onclick="filterMarkers('restroom')">Show Restrooms</button>
-        <button onclick="filterMarkers('trash bin')">Show Trash Bins</button>
-        <button onclick="filterMarkers('all')">Show All</button>
+        <button id="restroomButton" class="filter-button" onclick="setFilter('restroom')">Show Restrooms</button>
+        <button id="trashBinButton" class="filter-button" onclick="setFilter('trash bin')">Show Trash Bins</button>
+        <button id="allButton" class="filter-button active" onclick="setFilter('all')">Show All</button>
     </div>
     <div class="map-container">
         <div id="map"></div>
@@ -66,21 +70,22 @@
         }).addTo(map);
 
         const markerClusterGroup = L.markerClusterGroup({
-            spiderfyOnMaxZoom: true, // Spiderfy only at max zoom
-            disableClusteringAtZoom: 17, // Disable clustering at higher zoom levels
-            maxClusterRadius: 50, // Adjust radius for clustering close markers
-            spiderfyDistanceMultiplier: 3, // Spread markers further apart
-            removeOutsideVisibleBounds: true // Improve performance by removing out-of-view clusters
+            spiderfyOnMaxZoom: true,
+            disableClusteringAtZoom: 17,
+            maxClusterRadius: 50,
+            spiderfyDistanceMultiplier: 3,
+            removeOutsideVisibleBounds: true
         });
 
-        // Handle cluster clicks for all cluster sizes
+        let currentFilter = 'all'; // Track the current filter
+
         markerClusterGroup.on('clusterclick', function (event) {
             const cluster = event.layer;
-            map.fitBounds(cluster.getBounds(), { maxZoom: map.getZoom() + 2 }); // Force zoom into cluster bounds
-            event.preventDefault(); // Prevent default spiderfy behavior
+            map.fitBounds(cluster.getBounds(), { maxZoom: map.getZoom() + 2 });
+            event.preventDefault();
         });
 
-        function fetchMarkers(bounds, filter = 'all') {
+        function fetchMarkers(bounds, filter) {
             fetch('/get_markers', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -94,30 +99,62 @@
             })
             .then(response => response.json())
             .then(data => {
-                markerClusterGroup.clearLayers(); // Clear previous markers
+                console.log("Fetched markers:", data); // Debug log for fetched data
+
+                markerClusterGroup.clearLayers(); // Clear all markers in the cluster group
+                map.removeLayer(markerClusterGroup); // Remove cluster group from the map
+
                 data.forEach(location => {
                     const marker = L.marker([location.latitude, location.longitude]);
                     marker.bindPopup(`
                         <strong>${location.facility_name}</strong><br>
+                        Type: ${location.location_type}<br>
                         Address: ${location.address || 'N/A'}<br>
                         Status: ${location.status || 'N/A'}<br>
-                        Notes: ${location.additional_notes || 'N/A'}
+                        Hours: ${location.hours_of_operation || 'N/A'}<br>
+                        Accessibility: ${location.accessibility || 'N/A'}<br>
+                        Restroom Type: ${location.restroom_type || 'N/A'}<br>
+                        Changing Stations: ${location.changing_stations || 'N/A'}<br>
+                        Features: ${location.additional_notes || 'N/A'}<br>
+                        <a href="${location.website}" target="_blank">More Info</a>
                     `);
-                    markerClusterGroup.addLayer(marker); // Add to cluster group
+                    markerClusterGroup.addLayer(marker);
                 });
-                map.addLayer(markerClusterGroup); // Add cluster group to map
+
+                map.addLayer(markerClusterGroup); // Re-add cluster group to the map
             })
             .catch(console.error);
         }
 
-        function filterMarkers(type) {
-            fetchMarkers(map.getBounds(), type);
+
+
+
+
+        function setFilter(type) {
+            currentFilter = type;
+
+            // Fetch and apply the new filter
+            fetchMarkers(map.getBounds(), currentFilter);
+
+            // Update button styles
+            document.querySelectorAll('.filter-button').forEach(button => {
+                button.classList.remove('active');
+            });
+
+            if (type === 'restroom') {
+                document.getElementById('restroomButton').classList.add('active');
+            } else if (type === 'trash bin') {
+                document.getElementById('trashBinButton').classList.add('active');
+            } else if (type === 'all') {
+                document.getElementById('allButton').classList.add('active');
+            }
         }
 
-        map.on('moveend', () => fetchMarkers(map.getBounds())); // Fetch markers dynamically
 
-        // Initial load
-        fetchMarkers(map.getBounds());
+
+        map.on('moveend', () => fetchMarkers(map.getBounds(), currentFilter));
+
+        fetchMarkers(map.getBounds(), currentFilter);
     </script>
 </body>
 </html>

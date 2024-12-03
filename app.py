@@ -27,7 +27,7 @@ with app.app_context():
     for _, row in df.iterrows():
         restroom = Restroom(
             facility_name=row['Facility Name'],
-            location_type=row['Location Type'],
+            location_type="Restroom", 
             operator=row['Operator'],
             status=row['Status'],
             open=row['Open'],
@@ -43,7 +43,9 @@ with app.app_context():
         )
         db.session.add(restroom)
     db.session.commit()
-    print("Data loaded successfully!")
+    print("Public restrooms data loaded successfully!")
+
+
     
 @app.route('/show_restrooms')
 def show_restrooms():
@@ -129,21 +131,33 @@ def show_map():
 
 @app.route('/get_markers', methods=['POST'])
 def get_markers():
-    """Fetch markers dynamically based on map bounds."""
     data = request.json
     north = data["north"]
     south = data["south"]
     east = data["east"]
     west = data["west"]
+    filter_type = data.get("filter", "all")
 
-    # Filter markers within the specified bounds
-    markers = Restroom.query.filter(
+    # Query database for markers within bounds
+    query = Restroom.query.filter(
         Restroom.latitude.between(south, north),
         Restroom.longitude.between(west, east)
-    ).all()
+    )
 
-    # Format marker data for the frontend
-    marker_data = [
+    # Apply filter if specified
+    if filter_type == "restroom":
+        query = query.filter(Restroom.location_type.ilike("restroom"))
+    elif filter_type == "trash bin":
+        query = query.filter(Restroom.location_type.ilike("trash bin"))
+
+    # Debugging logs
+    print(f"Filter type: {filter_type}, Query: {query}")
+
+    markers = query.all()
+
+    print(f"Returned {len(markers)} markers")  # Debugging log
+
+    return jsonify([
         {
             "facility_name": marker.facility_name,
             "latitude": marker.latitude,
@@ -151,11 +165,16 @@ def get_markers():
             "location_type": marker.location_type,
             "address": marker.location_1,
             "status": marker.status,
-            "additional_notes": marker.additional_notes
+            "hours_of_operation": marker.hours_of_operation,
+            "accessibility": marker.accessibility,
+            "restroom_type": marker.restroom_type,
+            "changing_stations": marker.changing_stations,
+            "additional_notes": marker.additional_notes,
+            "website": marker.website
         }
         for marker in markers
-    ]
-    return jsonify(marker_data)
+    ])
+
 
 
 
