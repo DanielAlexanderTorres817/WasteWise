@@ -4,120 +4,120 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Map - Downtown Brooklyn</title>
-    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 0;
             display: flex;
             height: 100vh;
             background-color: #f4f4f4;
         }
-
-        /* Sidebar styling */
+        .map-container {
+            flex-grow: 1;
+        }
+        #map {
+            height: 100%;
+            width: 100%;
+        }
         .sidebar {
             width: 30%;
-            background-color: white;
             padding: 20px;
+            background-color: white;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
             overflow-y: auto;
         }
-
-        .sidebar h2 {
-            color: #4CAF50;
-            margin-bottom: 20px;
-        }
-
-        .sidebar section {
-            margin-bottom: 20px;
-        }
-
-        .sidebar button, .sidebar a {
+        button {
             display: block;
             margin-top: 10px;
+            padding: 10px;
             background-color: #4CAF50;
             color: white;
-            padding: 10px;
-            text-align: center;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            text-decoration: none;
         }
-
-        .sidebar button:hover, .sidebar a:hover {
+        button:hover {
             background-color: #097fed;
-        }
-
-        /* Map container */
-        .map-container {
-            flex-grow: 1;
-            position: relative;
-        }
-
-        #map {
-            height: 100%; /* Fill the container */
-            width: 100%;
         }
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
     <div class="sidebar">
-        <h2>Filter & Bookmarks</h2>
-
-        <!-- Filter Section -->
-        <section>
-            <h3>Filters</h3>
-            <!-- <button onclick="filterMarkers('restroom')">Show Restrooms</button> -->
-            <button onclick="window.location.href='/show_restrooms'">Show Restrooms</button>
-            <button onclick="filterMarkers('trash bin')">Show Trash Bins</button>
-            <button onclick="filterMarkers('all')">Show All</button>
-        </section>
-
-        <!-- Bookmarks Section -->
-        <section>
-            <h3>Bookmarks</h3>
-            <p>No bookmarks yet.</p>
-            <!-- Add logic to populate bookmarks -->
-        </section>
+        <h2>Filters</h2>
+        <button onclick="filterMarkers('restroom')">Show Restrooms</button>
+        <button onclick="filterMarkers('trash bin')">Show Trash Bins</button>
+        <button onclick="filterMarkers('all')">Show All</button>
     </div>
-
-    <!-- Map Container -->
     <div class="map-container">
         <div id="map"></div>
     </div>
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // Initialize the map and set the view to Downtown Brooklyn
-        var map = L.map('map').setView([40.693943, -73.985880], 15);
+        const map = L.map('map').setView([40.693943, -73.985880], 15); // Downtown Brooklyn
 
         // Add OpenStreetMap tiles
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // Add a sample marker for demonstration
-        var marker = L.marker([40.693943, -73.985880]).addTo(map);
-        marker.bindPopup("Downtown Brooklyn").openPopup();
+        const markerClusterGroup = L.markerClusterGroup({
+            spiderfyOnMaxZoom: true, // Spiderfy only at max zoom
+            disableClusteringAtZoom: 17, // Disable clustering at higher zoom levels
+            maxClusterRadius: 50, // Adjust radius for clustering close markers
+            spiderfyDistanceMultiplier: 3, // Spread markers further apart
+            removeOutsideVisibleBounds: true // Improve performance by removing out-of-view clusters
+        });
 
-        // Placeholder for filter functionality
-        function filterMarkers(type) {
-            console.log(`Filtering markers by type: ${type}`);
-            // Add logic to filter markers
+        // Handle cluster clicks for all cluster sizes
+        markerClusterGroup.on('clusterclick', function (event) {
+            const cluster = event.layer;
+            map.fitBounds(cluster.getBounds(), { maxZoom: map.getZoom() + 2 }); // Force zoom into cluster bounds
+            event.preventDefault(); // Prevent default spiderfy behavior
+        });
+
+        function fetchMarkers(bounds, filter = 'all') {
+            fetch('/get_markers', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    north: bounds.getNorth(),
+                    south: bounds.getSouth(),
+                    east: bounds.getEast(),
+                    west: bounds.getWest(),
+                    filter: filter
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                markerClusterGroup.clearLayers(); // Clear previous markers
+                data.forEach(location => {
+                    const marker = L.marker([location.latitude, location.longitude]);
+                    marker.bindPopup(`
+                        <strong>${location.facility_name}</strong><br>
+                        Address: ${location.address || 'N/A'}<br>
+                        Status: ${location.status || 'N/A'}<br>
+                        Notes: ${location.additional_notes || 'N/A'}
+                    `);
+                    markerClusterGroup.addLayer(marker); // Add to cluster group
+                });
+                map.addLayer(markerClusterGroup); // Add cluster group to map
+            })
+            .catch(console.error);
         }
 
-        var locations = {{ locations|tojson | safe }};
+        function filterMarkers(type) {
+            fetchMarkers(map.getBounds(), type);
+        }
 
-        // Loop through the locations and add markers
-        locations.forEach(function(element) {
-            var marker = L.marker([element.latitude, element.longitude]).addTo(map);
-            marker.bindPopup("<strong>" + element.facility_name + "</strong><br>Location: " + element.location_type);
-        });
+        map.on('moveend', () => fetchMarkers(map.getBounds())); // Fetch markers dynamically
+
+        // Initial load
+        fetchMarkers(map.getBounds());
     </script>
 </body>
 </html>

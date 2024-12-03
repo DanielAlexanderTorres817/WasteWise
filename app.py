@@ -1,5 +1,5 @@
 import csv
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 from views import views
 import pandas as pd
 from flask_sqlalchemy import SQLAlchemy
@@ -126,6 +126,38 @@ def show_map():
 
     # Render the map page, passing locations as JSON-compatible data
     return render_template('map.html', locations=locations)
+
+@app.route('/get_markers', methods=['POST'])
+def get_markers():
+    """Fetch markers dynamically based on map bounds."""
+    data = request.json
+    north = data["north"]
+    south = data["south"]
+    east = data["east"]
+    west = data["west"]
+
+    # Filter markers within the specified bounds
+    markers = Restroom.query.filter(
+        Restroom.latitude.between(south, north),
+        Restroom.longitude.between(west, east)
+    ).all()
+
+    # Format marker data for the frontend
+    marker_data = [
+        {
+            "facility_name": marker.facility_name,
+            "latitude": marker.latitude,
+            "longitude": marker.longitude,
+            "location_type": marker.location_type,
+            "address": marker.location_1,
+            "status": marker.status,
+            "additional_notes": marker.additional_notes
+        }
+        for marker in markers
+    ]
+    return jsonify(marker_data)
+
+
 
 if __name__ == "__main__":
     app.run(debug=True, port = 5000)
