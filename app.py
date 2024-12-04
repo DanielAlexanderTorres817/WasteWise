@@ -184,6 +184,69 @@ def facility_list():
     # Render the facility list template with the fetched data
     return render_template('facility_list.html', facilities=facilities)
 
+@app.route('/manage-facilities')
+def manage_facilities():
+    restrooms = Restroom.query.limit(100).all()
+     # Render the facility list template with the fetched data
+    return render_template('manage_facilities.html', restrooms=restrooms)
+
+@app.route('/delete-restroom/<int:id>', methods=['POST'])
+def delete_restroom(id):
+    # Query the restroom to be deleted by its ID
+    restroom = Restroom.query.get_or_404(id)
+    
+    # Delete the restroom from the database
+    db.session.delete(restroom)
+    db.session.commit()
+    
+    # Redirect to the list of restrooms after deletion
+    return redirect(url_for('manage_facilities'))
+
+@app.route('/add_facility', methods=['GET', 'POST'])
+def add_facility():
+    if request.method == 'POST':
+        # Get the data from the form
+        facility_name = request.form['facility_name']
+        location_type = request.form['location_type']
+        operator = request.form['operator']
+        status = request.form['status']
+        hours_of_operation = request.form['hours_of_operation']
+        accessibility = request.form['accessibility']
+        restroom_type = request.form['restroom_type']
+        changing_stations = request.form['changing_stations']
+        website = request.form['website']
+        latitude = request.form['latitude']
+        longitude = request.form['longitude']
+        location_1 = request.form['location_1']
+        
+        # Create a new Restroom instance
+        new_restroom = Restroom(
+            facility_name=facility_name,
+            location_type=location_type,
+            operator=operator,
+            status=status,
+            hours_of_operation=hours_of_operation,
+            accessibility=accessibility,
+            restroom_type=restroom_type,
+            changing_stations=changing_stations,
+            website=website,
+            latitude=latitude,
+            longitude=longitude,
+            location_1=location_1
+        )
+        
+        # Add the new restroom to the database
+        db.session.add(new_restroom)
+        db.session.commit()
+        # After committing the new restroom to the database
+        print("Added restroom: {new_restroom.facility_name}")
+        
+        # Redirect to the list of restrooms
+        return redirect(url_for('manage_facilities'))
+    
+    return render_template('add_facility.html')
+
+
 @app.route('/search')
 def facility_search():
     search_query = request.args.get('search', '')  # Get the search query from the URL
