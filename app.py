@@ -178,7 +178,7 @@ def get_markers():
 @app.route('/list')
 def facility_list():
     # Fetch all facilities from the database
-    facilities = Restroom.query.all()
+    facilities = Restroom.query.limit(100).all()
 
     # Render the facility list template with the fetched data
     return render_template('facility_list.html', facilities=facilities)
