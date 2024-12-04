@@ -3,7 +3,7 @@ from flask import Flask, jsonify, render_template, request, flash
 from views import views
 import pandas as pd
 from flask_sqlalchemy import SQLAlchemy
-from models import db, Restroom, Feedback
+from models import db, Restroom, Feedback, Survey
 from flask import redirect, url_for
 
 app = Flask(__name__)
@@ -299,14 +299,29 @@ def survey():
 @app.route('/submit-survey', methods=['POST'])
 def submit_survey():
     # Process form data
+    facility_name = request.form['facility_name']
     cleanliness = request.form.get('cleanliness')
     busyness = request.form.get('busyness')
     comments = request.form.get('comments')
 
     # Save the data to a database or log it
+    new_survey = Survey(facility_name=facility_name, cleanliness=cleanliness, busyness=busyness, comments=comments)
+
+    # Add and commit to the database
+    db.session.add(new_survey)
+    db.session.commit()
 
     # Render a success message
     return render_template('survey_submitted.html')
+
+    # return redirect(url_for('view_surveys'))
+
+# Route to view surveys
+@app.route('/view_survey')
+def view_survey():
+    # Query all surveys ordered by facility name alphabetically
+    surveys = Survey.query.order_by(Survey.facility_name).all()
+    return render_template('view_survey.html', surveys=surveys)
 
 @app.route('/feedback')
 def feedback():
