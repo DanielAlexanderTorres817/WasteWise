@@ -186,14 +186,15 @@ def facility_list():
 @app.route('/search')
 def facility_search():
     search_query = request.args.get('search', '')  # Get the search query from the URL
+    limit = 100
 
     # If a search query is provided, filter facilities
     if search_query:
         facilities = Restroom.query.filter(
             Restroom.facility_name.ilike(f"%{search_query}%")
-        ).all()
+        ).limit(limit).all()
     else:
-        facilities = Restroom.query.all()
+        facilities = Restroom.query.limit(limit).all()
 
     # If the request is from AJAX, return only the table rows
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
