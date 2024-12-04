@@ -220,6 +220,14 @@ def submit_survey():
     # Render a success message
     return render_template('survey_submitted.html')
 
+@app.route('/feedback')
+def feedback():
+    return render_template('feedback.html')
+
+@app.route('/submit-feedback', methods=['POST'])
+def submit_feedback():
+    return render_template('feedback_submitted.html')
+
 if __name__ == "__main__":
     app.run(debug=True, port = 5000)
 
