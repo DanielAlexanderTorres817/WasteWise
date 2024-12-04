@@ -183,7 +183,24 @@ def facility_list():
     # Render the facility list template with the fetched data
     return render_template('facility_list.html', facilities=facilities)
 
+@app.route('/search')
+def facility_search():
+    search_query = request.args.get('search', '')  # Get the search query from the URL
 
+    # If a search query is provided, filter facilities
+    if search_query:
+        facilities = Restroom.query.filter(
+            Restroom.facility_name.ilike(f"%{search_query}%")
+        ).all()
+    else:
+        facilities = Restroom.query.all()
+
+    # Render the search template with the fetched data
+    return render_template('search.html', facilities=facilities, search_query=search_query)
+
+@app.route('/survey')
+def survey():
+    return render_template('restroom_survey.html')
 
 if __name__ == "__main__":
     app.run(debug=True, port = 5000)
