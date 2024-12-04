@@ -9,17 +9,23 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            height: 100vh;
+            background-image: url('static/dashboard_bg.png'); 
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
         }
 
         /* Navigation bar */
         .navbar {
-            background-color: #4CAF50;
+            background-color: rgba(76, 175, 80, 0.9); /* Semi-transparent green */
             color: white;
             padding: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
         }
 
         .navbar .title {
@@ -45,14 +51,14 @@
             flex-wrap: wrap;
             justify-content: center;
             margin: 20px;
+            gap: 20px; /* Add space between feature cards */
         }
 
         /* Feature cards */
         .feature-card {
-            background-color: white;
+            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white for readability */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
-            margin: 15px;
             padding: 20px;
             width: 250px;
             text-align: center;
@@ -81,6 +87,7 @@
             border-radius: 5px;
             font-size: 14px;
             display: inline-block;
+            margin: 5px; /* Add space between buttons */
         }
 
         .feature-card a:hover {
@@ -105,7 +112,6 @@
             <a href="{{ url_for('views.map_view') }}">Access Map</a>
         </div>
         
-
         <!-- Search Features -->
         <div class="feature-card">
             <h3>Search Facilities</h3>
@@ -119,8 +125,6 @@
             <p>Store owners can manage facilities with full CRUD operations.</p>
             <a href="/manage_facilities">Manage</a>
         </div>
-
-
 
         <!-- Facility List -->
         <div class="feature-card">

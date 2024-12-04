@@ -34,7 +34,6 @@ def login():
 
 
 
-
 #registration
 @views.route("/register", methods=["GET", "POST"])
 def register():
@@ -58,6 +57,7 @@ def register():
         return redirect(url_for("views.login"))
 
     return render_template("register.html")
+
 
 
 

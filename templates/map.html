@@ -136,14 +136,14 @@
         function setFilter(type) {
             currentFilter = type;
 
-            // Show Leaflet map and hide DSNY map
-            document.getElementById('map').style.display = 'block';
+            
+            document.getElementById('map').style.display = 'block'; // show Leaflet map and hide DSNY map
             document.getElementById('dsnyMap').style.display = 'none';
 
-            // Fetch and apply the new filter
+            
             fetchMarkers(map.getBounds(), currentFilter);
 
-            // Update button styles
+            
             document.querySelectorAll('.filter-button').forEach(button => {
                 button.classList.remove('active');
             });
@@ -154,18 +154,18 @@
         }
 
         function showDsnyMap() {
-            // Show DSNY map and hide Leaflet map
-            document.getElementById('map').style.display = 'none';
+           
+            document.getElementById('map').style.display = 'none';  // show DSNY map and hide Leaflet map
             document.getElementById('dsnyMap').style.display = 'block';
 
-            // Update button styles
+            
             document.querySelectorAll('.filter-button').forEach(button => {
                 button.classList.remove('active');
             });
             document.getElementById('trashBinButton').classList.add('active');
         }
 
-        // Initialize the map with restroom markers
+        
         map.on('moveend', () => fetchMarkers(map.getBounds(), currentFilter));
         fetchMarkers(map.getBounds(), currentFilter);
     </script>
