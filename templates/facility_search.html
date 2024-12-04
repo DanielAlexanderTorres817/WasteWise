@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facility List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            color: #4CAF50;
+            text-align: center;
+        }
+
+        #search-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #search-input {
+            width: 80%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: white;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        a {
+            text-decoration: none;
+            color: #4CAF50;
+        }
+
+        .no-data {
+            text-align: center;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Facility List</h1>
+
+    <!-- Search Input -->
+    <div id="search-container">
+        <input type="text" id="search-input" placeholder="Search facilities by name or other attributes...">
+    </div>
+
+    <table id="facility-table">
+        <thead>
+            <tr>
+                <th>Facility Name</th>
+                <th>Location Type</th>
+                <th>Status</th>
+                <th>Operator</th>
+                <th>Open</th>
+                <th>Hours of Operation</th>
+                <th>Accessibility</th>
+                <th>Restroom Type</th>
+                <th>Changing Stations</th>
+                <th>Additional Notes</th>
+                <th>Website</th>
+                <th>Address</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if facilities %}
+                {% for facility in facilities %}
+                <tr>
+                    <td>{{ facility.facility_name }}</td>
+                    <td>{{ facility.location_type }}</td>
+                    <td>{{ facility.status }}</td>
+                    <td>{{ facility.operator or 'N/A' }}</td>
+                    <td>{{ facility.open or 'N/A' }}</td>
+                    <td>{{ facility.hours_of_operation or 'N/A' }}</td>
+                    <td>{{ facility.accessibility or 'N/A' }}</td>
+                    <td>{{ facility.restroom_type or 'N/A' }}</td>
+                    <td>{{ facility.changing_stations or 'N/A' }}</td>
+                    <td>{{ facility.additional_notes or 'N/A' }}</td>
+                    <td>
+                        {% if facility.website %}
+                            <a href="{{ facility.website }}" target="_blank">Visit</a>
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td>{{ facility.location_1 or 'N/A' }}</td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="12" class="no-data">No facilities available</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+    <script>
+        // Search Functionality
+        const searchInput = document.getElementById('search-input');
+        const table = document.getElementById('facility-table');
+        const rows = table.getElementsByTagName('tr');
+
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+
+            // Loop through table rows (skip the header row)
+            for (let i = 1; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName('td');
+                let match = false;
+
+                // Loop through each cell in the row
+                for (let j = 0; j < cells.length; j++) {
+                    if (cells[j] && cells[j].innerText.toLowerCase().includes(query)) {
+                        match = true;
+                        break;
+                    }
+                }
+
+                // Show or hide the row based on match
+                rows[i].style.display = match ? '' : 'none';
+            }
+        });
+    </script>
+
+</body>
+</html>
