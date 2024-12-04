@@ -99,7 +99,6 @@
     </table>
 
     <script>
-        // Search Functionality with Backend Integration
         const searchInput = document.getElementById('search-input');
         const tableBody = document.querySelector('#facility-table tbody');
 
@@ -107,11 +106,14 @@
             const query = this.value;
 
             try {
-                // Fetch filtered facilities from the backend
-                const response = await fetch(`/search?search=${encodeURIComponent(query)}`);
+                // Send a request to the backend with the search query
+                const response = await fetch(`/search?search=${encodeURIComponent(query)}`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+
                 if (response.ok) {
                     const data = await response.text();
-                    // Replace the table body with the updated rows
+                    // Replace the table body content with the new rows
                     tableBody.innerHTML = data;
                 } else {
                     console.error('Error fetching search results:', response.statusText);
@@ -121,6 +123,7 @@
             }
         });
     </script>
+
 
 </body>
 </html>
