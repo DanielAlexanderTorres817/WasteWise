@@ -1,0 +1,26 @@
+{% for facility in facilities %}
+<tr>
+    <td>{{ facility.facility_name }}</td>
+    <td>{{ facility.location_type }}</td>
+    <td>{{ facility.status }}</td>
+    <td>{{ facility.operator or 'N/A' }}</td>
+    <td>{{ facility.open or 'N/A' }}</td>
+    <td>{{ facility.hours_of_operation or 'N/A' }}</td>
+    <td>{{ facility.accessibility or 'N/A' }}</td>
+    <td>{{ facility.restroom_type or 'N/A' }}</td>
+    <td>{{ facility.changing_stations or 'N/A' }}</td>
+    <td>{{ facility.additional_notes or 'N/A' }}</td>
+    <td>
+        {% if facility.website %}
+            <a href="{{ facility.website }}" target="_blank">Visit</a>
+        {% else %}
+            N/A
+        {% endif %}
+    </td>
+    <td>{{ facility.location_1 or 'N/A' }}</td>
+</tr>
+{% else %}
+<tr>
+    <td colspan="12" class="no-data">No facilities available</td>
+</tr>
+{% endfor %}
