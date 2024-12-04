@@ -196,7 +196,7 @@ def facility_search():
         facilities = Restroom.query.all()
 
     # Render the search template with the fetched data
-    return render_template('search.html', facilities=facilities, search_query=search_query)
+    return render_template('facility_search.html', facilities=facilities, search_query=search_query)
 
 @app.route('/survey')
 def survey():
