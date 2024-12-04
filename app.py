@@ -195,7 +195,11 @@ def facility_search():
     else:
         facilities = Restroom.query.all()
 
-    # Render the search template with the fetched data
+    # If the request is from AJAX, return only the table rows
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render_template('partials/facility_rows.html', facilities=facilities)
+
+    # Render the full search page for normal requests
     return render_template('facility_search.html', facilities=facilities, search_query=search_query)
 
 @app.route('/survey')
