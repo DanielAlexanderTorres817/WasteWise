@@ -68,6 +68,9 @@
   <div class="survey-container">
     <h1>Restroom Survey</h1>
     <form action="/submit-survey" method="POST">
+      <!-- Facility Name Field -->
+      <label for="facility-name">Facility Name</label>
+      <input type="text" id="facility-name" name="facility_name" placeholder="Enter the facility name" required>
       <!-- Question 1 -->
       <label for="cleanliness">How clean was the restroom?</label>
       <select id="cleanliness" name="cleanliness" required>
