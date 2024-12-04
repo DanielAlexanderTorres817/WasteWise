@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Facility List</title>
+    <title>Facility Search</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -69,7 +69,7 @@
 </head>
 <body>
 
-    <h1>Facility List</h1>
+    <h1>Facility Search</h1>
 
     <!-- Search Input -->
     <div id="search-container">
@@ -94,61 +94,30 @@
             </tr>
         </thead>
         <tbody>
-            {% if facilities %}
-                {% for facility in facilities %}
-                <tr>
-                    <td>{{ facility.facility_name }}</td>
-                    <td>{{ facility.location_type }}</td>
-                    <td>{{ facility.status }}</td>
-                    <td>{{ facility.operator or 'N/A' }}</td>
-                    <td>{{ facility.open or 'N/A' }}</td>
-                    <td>{{ facility.hours_of_operation or 'N/A' }}</td>
-                    <td>{{ facility.accessibility or 'N/A' }}</td>
-                    <td>{{ facility.restroom_type or 'N/A' }}</td>
-                    <td>{{ facility.changing_stations or 'N/A' }}</td>
-                    <td>{{ facility.additional_notes or 'N/A' }}</td>
-                    <td>
-                        {% if facility.website %}
-                            <a href="{{ facility.website }}" target="_blank">Visit</a>
-                        {% else %}
-                            N/A
-                        {% endif %}
-                    </td>
-                    <td>{{ facility.location_1 or 'N/A' }}</td>
-                </tr>
-                {% endfor %}
-            {% else %}
-                <tr>
-                    <td colspan="12" class="no-data">No facilities available</td>
-                </tr>
-            {% endif %}
+            {% include 'partials/facility_rows.html' %}
         </tbody>
     </table>
 
     <script>
-        // Search Functionality
+        // Search Functionality with Backend Integration
         const searchInput = document.getElementById('search-input');
-        const table = document.getElementById('facility-table');
-        const rows = table.getElementsByTagName('tr');
+        const tableBody = document.querySelector('#facility-table tbody');
 
-        searchInput.addEventListener('input', function() {
-            const query = this.value.toLowerCase();
+        searchInput.addEventListener('input', async function () {
+            const query = this.value;
 
-            // Loop through table rows (skip the header row)
-            for (let i = 1; i < rows.length; i++) {
-                const cells = rows[i].getElementsByTagName('td');
-                let match = false;
-
-                // Loop through each cell in the row
-                for (let j = 0; j < cells.length; j++) {
-                    if (cells[j] && cells[j].innerText.toLowerCase().includes(query)) {
-                        match = true;
-                        break;
-                    }
+            try {
+                // Fetch filtered facilities from the backend
+                const response = await fetch(`/search?search=${encodeURIComponent(query)}`);
+                if (response.ok) {
+                    const data = await response.text();
+                    // Replace the table body with the updated rows
+                    tableBody.innerHTML = data;
+                } else {
+                    console.error('Error fetching search results:', response.statusText);
                 }
-
-                // Show or hide the row based on match
-                rows[i].style.display = match ? '' : 'none';
+            } catch (error) {
+                console.error('Error:', error);
             }
         });
     </script>
