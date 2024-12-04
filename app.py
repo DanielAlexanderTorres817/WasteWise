@@ -3,7 +3,7 @@ from flask import Flask, jsonify, render_template, request
 from views import views
 import pandas as pd
 from flask_sqlalchemy import SQLAlchemy
-from models import db, Restroom
+from models import db, Restroom, Feedback
 from flask import redirect, url_for
 
 app = Flask(__name__)
@@ -226,7 +226,17 @@ def feedback():
 
 @app.route('/submit-feedback', methods=['POST'])
 def submit_feedback():
+    comments = request.form.get('comments')
+    if comments:
+        feedback_entry = Feedback(comments=comments)
+        db.session.add(feedback_entry)
+        db.session.commit()
     return render_template('feedback_submitted.html')
+
+@app.route('/feedback_list')
+def feedback_list():
+    feedback_entries = Feedback.query.order_by(Feedback.timestamp.desc()).all()
+    return render_template('feedback_list.html', feedback_entries=feedback_entries)
 
 if __name__ == "__main__":
     app.run(debug=True, port = 5000)

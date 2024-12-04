@@ -8,6 +8,11 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)  
     password = db.Column(db.String(200), nullable=False)  
 
+class Feedback(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    comments = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=db.func.now())
+
 class Restroom(db.Model):
     __tablename__ = 'restrooms'  # Optional: explicitly name the table
     
