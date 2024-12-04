@@ -13,6 +13,16 @@ class Feedback(db.Model):
     comments = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=db.func.now())
 
+class Survey(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    facility_name = db.Column(db.String(100), nullable=False)
+    cleanliness = db.Column(db.String(50), nullable=False)
+    busyness = db.Column(db.String(50), nullable=False)
+    comments = db.Column(db.Text)
+
+    def __repr__(self):
+        return f'<Survey {self.facility_name}>'
+
 class Restroom(db.Model):
     __tablename__ = 'restrooms'  # Optional: explicitly name the table
     
