@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import User, db
+from models import User, db, Restroom
 
 
 
@@ -86,10 +86,22 @@ def logout():
 #map 
 @views.route("/map")
 def map_view():
-    
     if "user" not in session:
         flash("You need to log in to access the map.", "error")
         return redirect(url_for("views.login"))
 
-    return render_template("map.html")
+    restrooms = Restroom.query.all()
+    locations = [
+        {
+            "facility_name": restroom.facility_name,
+            "latitude": restroom.latitude,
+            "longitude": restroom.longitude,
+            "location_type": restroom.location_type,
+        }
+        for restroom in restrooms
+    ]
+
+    return render_template("map.html", locations=locations)
+
+
 

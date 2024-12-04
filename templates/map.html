@@ -4,112 +4,157 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Map - Downtown Brooklyn</title>
-    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 0;
             display: flex;
             height: 100vh;
             background-color: #f4f4f4;
         }
-
-        /* Sidebar styling */
+        .map-container {
+            flex-grow: 1;
+        }
+        #map {
+            height: 100%;
+            width: 100%;
+        }
         .sidebar {
             width: 30%;
-            background-color: white;
             padding: 20px;
+            background-color: white;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
             overflow-y: auto;
         }
-
-        .sidebar h2 {
-            color: #4CAF50;
-            margin-bottom: 20px;
-        }
-
-        .sidebar section {
-            margin-bottom: 20px;
-        }
-
-        .sidebar button, .sidebar a {
+        .filter-button {
             display: block;
             margin-top: 10px;
+            padding: 10px;
             background-color: #4CAF50;
             color: white;
-            padding: 10px;
-            text-align: center;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            text-decoration: none;
+            text-align: center;
         }
-
-        .sidebar button:hover, .sidebar a:hover {
+        .filter-button.active {
             background-color: #097fed;
         }
-
-        /* Map container */
-        .map-container {
-            flex-grow: 1;
-            position: relative;
-        }
-
-        #map {
-            height: 100%; /* Fill the container */
-            width: 100%;
+        .filter-button:hover {
+            background-color: #097fed;
         }
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
     <div class="sidebar">
-        <h2>Filter & Bookmarks</h2>
-
-        <!-- Filter Section -->
-        <section>
-            <h3>Filters</h3>
-            <!-- <button onclick="filterMarkers('restroom')">Show Restrooms</button> -->
-            <button onclick="window.location.href='/show_restrooms'">Show Restrooms</button>
-            <button onclick="filterMarkers('trash bin')">Show Trash Bins</button>
-            <button onclick="filterMarkers('all')">Show All</button>
-        </section>
-
-        <!-- Bookmarks Section -->
-        <section>
-            <h3>Bookmarks</h3>
-            <p>No bookmarks yet.</p>
-            <!-- Add logic to populate bookmarks -->
-        </section>
+        <h2>Filters</h2>
+        <button id="restroomButton" class="filter-button" onclick="setFilter('restroom')">Show Restrooms</button>
+        <button id="trashBinButton" class="filter-button" onclick="setFilter('trash bin')">Show Trash Bins</button>
+        <button id="allButton" class="filter-button active" onclick="setFilter('all')">Show All</button>
     </div>
-
-    <!-- Map Container -->
     <div class="map-container">
         <div id="map"></div>
     </div>
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // Initialize the map and set the view to Downtown Brooklyn
-        var map = L.map('map').setView([40.693943, -73.985880], 15);
+        const map = L.map('map').setView([40.693943, -73.985880], 15); // Downtown Brooklyn
 
         // Add OpenStreetMap tiles
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // Add a sample marker for demonstration
-        var marker = L.marker([40.693943, -73.985880]).addTo(map);
-        marker.bindPopup("Downtown Brooklyn").openPopup();
+        const markerClusterGroup = L.markerClusterGroup({
+            spiderfyOnMaxZoom: true,
+            disableClusteringAtZoom: 17,
+            maxClusterRadius: 50,
+            spiderfyDistanceMultiplier: 3,
+            removeOutsideVisibleBounds: true
+        });
 
-        // Placeholder for filter functionality
-        function filterMarkers(type) {
-            console.log(`Filtering markers by type: ${type}`);
-            // Add logic to filter markers
+        let currentFilter = 'all'; // Track the current filter
+
+        markerClusterGroup.on('clusterclick', function (event) {
+            const cluster = event.layer;
+            map.fitBounds(cluster.getBounds(), { maxZoom: map.getZoom() + 2 });
+            event.preventDefault();
+        });
+
+        function fetchMarkers(bounds, filter) {
+            fetch('/get_markers', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    north: bounds.getNorth(),
+                    south: bounds.getSouth(),
+                    east: bounds.getEast(),
+                    west: bounds.getWest(),
+                    filter: filter
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Fetched markers:", data); // Debug log for fetched data
+
+                markerClusterGroup.clearLayers(); // Clear all markers in the cluster group
+                map.removeLayer(markerClusterGroup); // Remove cluster group from the map
+
+                data.forEach(location => {
+                    const marker = L.marker([location.latitude, location.longitude]);
+                    marker.bindPopup(`
+                        <strong>${location.facility_name}</strong><br>
+                        Type: ${location.location_type}<br>
+                        Address: ${location.address || 'N/A'}<br>
+                        Status: ${location.status || 'N/A'}<br>
+                        Hours: ${location.hours_of_operation || 'N/A'}<br>
+                        Accessibility: ${location.accessibility || 'N/A'}<br>
+                        Restroom Type: ${location.restroom_type || 'N/A'}<br>
+                        Changing Stations: ${location.changing_stations || 'N/A'}<br>
+                        Features: ${location.additional_notes || 'N/A'}<br>
+                        <a href="${location.website}" target="_blank">More Info</a>
+                    `);
+                    markerClusterGroup.addLayer(marker);
+                });
+
+                map.addLayer(markerClusterGroup); // Re-add cluster group to the map
+            })
+            .catch(console.error);
         }
+
+
+
+
+
+        function setFilter(type) {
+            currentFilter = type;
+
+            // Fetch and apply the new filter
+            fetchMarkers(map.getBounds(), currentFilter);
+
+            // Update button styles
+            document.querySelectorAll('.filter-button').forEach(button => {
+                button.classList.remove('active');
+            });
+
+            if (type === 'restroom') {
+                document.getElementById('restroomButton').classList.add('active');
+            } else if (type === 'trash bin') {
+                document.getElementById('trashBinButton').classList.add('active');
+            } else if (type === 'all') {
+                document.getElementById('allButton').classList.add('active');
+            }
+        }
+
+
+
+        map.on('moveend', () => fetchMarkers(map.getBounds(), currentFilter));
+
+        fetchMarkers(map.getBounds(), currentFilter);
     </script>
 </body>
 </html>

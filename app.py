@@ -1,4 +1,5 @@
-from flask import Flask
+import csv
+from flask import Flask, jsonify, render_template, request
 from views import views
 import pandas as pd
 from flask_sqlalchemy import SQLAlchemy
@@ -26,7 +27,7 @@ with app.app_context():
     for _, row in df.iterrows():
         restroom = Restroom(
             facility_name=row['Facility Name'],
-            location_type=row['Location Type'],
+            location_type="Restroom", 
             operator=row['Operator'],
             status=row['Status'],
             open=row['Open'],
@@ -42,7 +43,9 @@ with app.app_context():
         )
         db.session.add(restroom)
     db.session.commit()
-    print("Data loaded successfully!")
+    print("Public restrooms data loaded successfully!")
+
+
     
 @app.route('/show_restrooms')
 def show_restrooms():
@@ -102,6 +105,84 @@ def show_restrooms():
             </body>
         </html>
     """
+
+@app.route('/map')
+def show_map():
+    print('before')
+    # List to hold restroom data
+    locations = []
+
+    # Open the CSV file and read it
+    with open('Public_Restrooms_20241201.csv', newline='', encoding='utf-8') as csvfile:
+        csvreader = csv.DictReader(csvfile)
+        for row in csvreader:
+            locations.append({
+                'facility_name': row.get('Facility Name', 'Unknown name'),
+                'latitude': float(row['Latitude']) if row['Latitude'] else 0,
+                'longitude': float(row['Longitude']) if row['Longitude'] else 0,
+                'location_type': row.get('Location Type', 'Unknown type')
+            })
+
+    print('after')
+    print(locations[0])
+
+    # Render the map page, passing locations as JSON-compatible data
+    return render_template('map.html', locations=locations)
+
+@app.route('/get_markers', methods=['POST'])
+def get_markers():
+    data = request.json
+    north = data["north"]
+    south = data["south"]
+    east = data["east"]
+    west = data["west"]
+    filter_type = data.get("filter", "all")
+
+    # Query database for markers within bounds
+    query = Restroom.query.filter(
+        Restroom.latitude.between(south, north),
+        Restroom.longitude.between(west, east)
+    )
+
+    # Apply filter if specified
+    if filter_type == "restroom":
+        query = query.filter(Restroom.location_type.ilike("restroom"))
+    elif filter_type == "trash bin":
+        query = query.filter(Restroom.location_type.ilike("trash bin"))
+
+    # Debugging logs
+    print(f"Filter type: {filter_type}, Query: {query}")
+
+    markers = query.all()
+
+    print(f"Returned {len(markers)} markers")  # Debugging log
+
+    return jsonify([
+        {
+            "facility_name": marker.facility_name,
+            "latitude": marker.latitude,
+            "longitude": marker.longitude,
+            "location_type": marker.location_type,
+            "address": marker.location_1,
+            "status": marker.status,
+            "hours_of_operation": marker.hours_of_operation,
+            "accessibility": marker.accessibility,
+            "restroom_type": marker.restroom_type,
+            "changing_stations": marker.changing_stations,
+            "additional_notes": marker.additional_notes,
+            "website": marker.website
+        }
+        for marker in markers
+    ])
+
+@app.route('/list')
+def facility_list():
+    # Fetch all facilities from the database
+    facilities = Restroom.query.all()
+
+    # Render the facility list template with the fetched data
+    return render_template('facility_list.html', facilities=facilities)
+
 
 
 if __name__ == "__main__":
