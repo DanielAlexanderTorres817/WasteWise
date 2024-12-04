@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Facility</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #4CAF50;
+            text-align: center;
+        }
+
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Edit Facility</h1>
+
+    <form action="{{ url_for('edit_facility', id=facility.id) }}" method="POST">
+        <label for="facility_name">Facility Name</label>
+        <input type="text" id="facility_name" name="facility_name" value="{{ facility.facility_name }}" required>
+
+        <label for="location_type">Location Type</label>
+        <select id="location_type" name="location_type" required>
+            <option value="Restroom" {% if facility.location_type == "Restroom" %}selected{% endif %}>Restroom</option>
+            <option value="Trash Bin" {% if facility.location_type == "Trash Bin" %}selected{% endif %}>Trash Bin</option>
+        </select>
+
+        <label for="address">Address</label>
+        <input type="text" id="address" name="address" value="{{ facility.location_1 }}" required>
+
+        <label for="status">Status</label>
+        <input type="text" id="status" name="status" value="{{ facility.status }}">
+
+        <label for="hours_of_operation">Hours of Operation</label>
+        <input type="text" id="hours_of_operation" name="hours_of_operation" value="{{ facility.hours_of_operation }}">
+
+        <label for="accessibility">Accessibility</label>
+        <input type="text" id="accessibility" name="accessibility" value="{{ facility.accessibility }}">
+
+        <label for="restroom_type">Restroom Type</label>
+        <input type="text" id="restroom_type" name="restroom_type" value="{{ facility.restroom_type }}">
+
+        <label for="changing_stations">Changing Stations</label>
+        <input type="text" id="changing_stations" name="changing_stations" value="{{ facility.changing_stations }}">
+
+        <label for="operator">Operator</label>
+        <input type="text" id="operator" name="operator" value="{{ facility.operator }}">
+
+        <label for="website">Website</label>
+        <input type="url" id="website" name="website" value="{{ facility.website }}">
+
+        <label for="additional_notes">Additional Notes</label>
+        <textarea id="additional_notes" name="additional_notes">{{ facility.additional_notes }}</textarea>
+
+        <button type="submit">Save Changes</button>
+    </form>
+
+</body>
+</html>

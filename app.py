@@ -1,5 +1,5 @@
 import csv
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, flash
 from views import views
 import pandas as pd
 from flask_sqlalchemy import SQLAlchemy
@@ -184,67 +184,92 @@ def facility_list():
     # Render the facility list template with the fetched data
     return render_template('facility_list.html', facilities=facilities)
 
-@app.route('/manage-facilities')
+@app.route('/manage_facilities')
 def manage_facilities():
-    restrooms = Restroom.query.limit(100).all()
-     # Render the facility list template with the fetched data
-    return render_template('manage_facilities.html', restrooms=restrooms)
+    per_page = 100  # Number of facilities per page
+    page = request.args.get('page', 1, type=int)  # Current page number
+
+    # Fetch facilities with all relevant details, sorted by ID (newest first)
+    facilities = Restroom.query.order_by(Restroom.id.desc()).paginate(page=page, per_page=per_page)
+
+    return render_template('manage_facilities.html', facilities=facilities)
+
+
+
 
 @app.route('/delete-restroom/<int:id>', methods=['POST'])
 def delete_restroom(id):
-    # Query the restroom to be deleted by its ID
-    restroom = Restroom.query.get_or_404(id)
-    
-    # Delete the restroom from the database
-    db.session.delete(restroom)
+    facility = Restroom.query.get_or_404(id)
+    db.session.delete(facility)
     db.session.commit()
-    
-    # Redirect to the list of restrooms after deletion
+    flash('Facility deleted successfully!')
     return redirect(url_for('manage_facilities'))
+
 
 @app.route('/add_facility', methods=['GET', 'POST'])
 def add_facility():
     if request.method == 'POST':
-        # Get the data from the form
-        facility_name = request.form['facility_name']
-        location_type = request.form['location_type']
-        operator = request.form['operator']
-        status = request.form['status']
-        hours_of_operation = request.form['hours_of_operation']
-        accessibility = request.form['accessibility']
-        restroom_type = request.form['restroom_type']
-        changing_stations = request.form['changing_stations']
-        website = request.form['website']
-        latitude = request.form['latitude']
-        longitude = request.form['longitude']
-        location_1 = request.form['location_1']
-        
-        # Create a new Restroom instance
-        new_restroom = Restroom(
+        # Retrieve data from the form
+        facility_name = request.form.get('facility_name')
+        location_type = request.form.get('location_type')
+        address = request.form.get('address')
+        status = request.form.get('status')
+        hours_of_operation = request.form.get('hours_of_operation')
+        accessibility = request.form.get('accessibility')
+        restroom_type = request.form.get('restroom_type')
+        changing_stations = request.form.get('changing_stations')
+        operator = request.form.get('operator')
+        website = request.form.get('website')
+        additional_notes = request.form.get('additional_notes')
+
+        # Create a new facility
+        new_facility = Restroom(
             facility_name=facility_name,
             location_type=location_type,
-            operator=operator,
+            location_1=address,
             status=status,
             hours_of_operation=hours_of_operation,
             accessibility=accessibility,
             restroom_type=restroom_type,
             changing_stations=changing_stations,
+            operator=operator,
             website=website,
-            latitude=latitude,
-            longitude=longitude,
-            location_1=location_1
+            additional_notes=additional_notes
         )
-        
-        # Add the new restroom to the database
-        db.session.add(new_restroom)
+        db.session.add(new_facility)
         db.session.commit()
-        # After committing the new restroom to the database
-        print("Added restroom: {new_restroom.facility_name}")
-        
-        # Redirect to the list of restrooms
+        flash('Facility added successfully!')
         return redirect(url_for('manage_facilities'))
-    
+
     return render_template('add_facility.html')
+
+
+@app.route('/edit_facility/<int:id>', methods=['GET', 'POST'])
+def edit_facility(id):
+    facility = Restroom.query.get_or_404(id)
+
+    if request.method == 'POST':
+        # Update facility details with form data
+        facility.facility_name = request.form.get('facility_name')
+        facility.location_type = request.form.get('location_type')
+        facility.location_1 = request.form.get('address')
+        facility.status = request.form.get('status')
+        facility.hours_of_operation = request.form.get('hours_of_operation')
+        facility.accessibility = request.form.get('accessibility')
+        facility.restroom_type = request.form.get('restroom_type')
+        facility.changing_stations = request.form.get('changing_stations')
+        facility.operator = request.form.get('operator')
+        facility.website = request.form.get('website')
+        facility.additional_notes = request.form.get('additional_notes')
+
+        db.session.commit()
+        flash('Facility updated successfully!')
+        return redirect(url_for('manage_facilities'))
+
+    return render_template('edit_facility.html', facility=facility)
+
+
+
 
 
 @app.route('/search')

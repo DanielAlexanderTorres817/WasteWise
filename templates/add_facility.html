@@ -7,96 +7,94 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
-            margin: 0;
-            padding: 20px;
+            margin: 20px;
         }
-        .form-container {
+
+        h1 {
+            color: #4CAF50;
+            text-align: center;
+        }
+
+        form {
             max-width: 600px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #fff;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
             border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-        }
+
         label {
-            font-weight: bold;
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            font-weight: bold;
         }
-        input[type="text"], input[type="url"], input[type="number"], textarea {
+
+        input, select, textarea {
             width: 100%;
             padding: 10px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             border: 1px solid #ccc;
             border-radius: 4px;
         }
-        textarea {
-            resize: vertical;
-            height: 100px;
-        }
+
         button {
-            display: block;
-            width: 100%;
-            padding: 10px;
             background-color: #4CAF50;
             color: white;
+            padding: 10px 20px;
             border: none;
             border-radius: 4px;
-            font-size: 16px;
             cursor: pointer;
         }
+
         button:hover {
             background-color: #45a049;
         }
     </style>
 </head>
 <body>
-    <div class="form-container">
-        <h1>Add New Restroom</h1>
-        <form action="/add-restroom" method="POST">
-            <label for="facility_name">Facility Name:</label>
-            <input type="text" id="facility_name" name="facility_name" required>
 
-            <label for="location_type">Location Type:</label>
-            <input type="text" id="location_type" name="location_type">
+    <h1>Add Facility</h1>
 
-            <label for="operator">Operator:</label>
-            <input type="text" id="operator" name="operator">
+    <form action="{{ url_for('add_facility') }}" method="POST">
+        <label for="facility_name">Facility Name</label>
+        <input type="text" id="facility_name" name="facility_name" required>
 
-            <label for="status">Status:</label>
-            <input type="text" id="status" name="status">
+        <label for="location_type">Location Type</label>
+        <select id="location_type" name="location_type" required>
+            <option value="Restroom">Restroom</option>
+            <option value="Trash Bin">Trash Bin</option>
+        </select>
 
-            <label for="hours_of_operation">Hours of Operation:</label>
-            <input type="text" id="hours_of_operation" name="hours_of_operation">
+        <label for="address">Address</label>
+        <input type="text" id="address" name="address" required>
 
-            <label for="accessibility">Accessibility:</label>
-            <input type="text" id="accessibility" name="accessibility">
+        <label for="status">Status</label>
+        <input type="text" id="status" name="status">
 
-            <label for="restroom_type">Restroom Type:</label>
-            <input type="text" id="restroom_type" name="restroom_type">
+        <label for="hours_of_operation">Hours of Operation</label>
+        <input type="text" id="hours_of_operation" name="hours_of_operation">
 
-            <label for="changing_stations">Changing Stations:</label>
-            <input type="text" id="changing_stations" name="changing_stations">
+        <label for="accessibility">Accessibility</label>
+        <input type="text" id="accessibility" name="accessibility">
 
-            <label for="website">Website:</label>
-            <input type="url" id="website" name="website">
+        <label for="restroom_type">Restroom Type</label>
+        <input type="text" id="restroom_type" name="restroom_type">
 
-            <label for="latitude">Latitude:</label>
-            <input type="number" id="latitude" name="latitude" step="0.0001">
+        <label for="changing_stations">Changing Stations</label>
+        <input type="text" id="changing_stations" name="changing_stations">
 
-            <label for="longitude">Longitude:</label>
-            <input type="number" id="longitude" name="longitude" step="0.0001">
+        <label for="operator">Operator</label>
+        <input type="text" id="operator" name="operator">
 
-            <label for="location_1">Location:</label>
-            <input type="text" id="location_1" name="location_1">
+        <label for="website">Website</label>
+        <input type="url" id="website" name="website">
 
-            <button type="submit">Add Restroom</button>
-        </form>
-    </div>
+        <label for="additional_notes">Additional Notes</label>
+        <textarea id="additional_notes" name="additional_notes"></textarea>
+
+        <button type="submit">Add Facility</button>
+    </form>
+
 </body>
 </html>
