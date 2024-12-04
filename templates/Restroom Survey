@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restroom Survey</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+
+    .survey-container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .survey-container h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    input[type="text"], textarea, select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    textarea {
+      resize: vertical;
+      height: 100px;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <div class="survey-container">
+    <h1>Restroom Survey</h1>
+    <form action="/submit-survey" method="POST">
+      <!-- Question 1 -->
+      <label for="cleanliness">How clean was the restroom?</label>
+      <select id="cleanliness" name="cleanliness" required>
+        <option value="">Select an option</option>
+        <option value="very-clean">Very Clean</option>
+        <option value="clean">Clean</option>
+        <option value="neutral">Neutral</option>
+        <option value="dirty">Dirty</option>
+        <option value="very-dirty">Very Dirty</option>
+      </select>
+
+      <!-- Question 2 -->
+      <label for="busyness">How busy was the restroom?</label>
+      <select id="busyness" name="busyness" required>
+        <option value="">Select an option</option>
+        <option value="very-busy">Very Busy</option>
+        <option value="busy">Busy</option>
+        <option value="neutral">Neutral</option>
+        <option value="quiet">Quiet</option>
+        <option value="very-quiet">Very Quiet</option>
+      </select>
+
+      <!-- Question 3 -->
+      <label for="comments">Any additional comments:</label>
+      <textarea id="comments" name="comments" placeholder="Write your comments here..."></textarea>
+
+      <!-- Submit Button -->
+      <button type="submit">Submit Survey</button>
+    </form>
+  </div>
+</body>
+</html>
