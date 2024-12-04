@@ -4,6 +4,7 @@ from views import views
 import pandas as pd
 from flask_sqlalchemy import SQLAlchemy
 from models import db, Restroom
+from flask import redirect, url_for
 
 app = Flask(__name__)
 
@@ -206,6 +207,18 @@ def facility_search():
 @app.route('/survey')
 def survey():
     return render_template('restroom_survey.html')
+
+@app.route('/submit-survey', methods=['POST'])
+def submit_survey():
+    # Process form data
+    cleanliness = request.form.get('cleanliness')
+    busyness = request.form.get('busyness')
+    comments = request.form.get('comments')
+
+    # Save the data to a database or log it
+
+    # Render a success message
+    return render_template('survey_submitted.html')
 
 if __name__ == "__main__":
     app.run(debug=True, port = 5000)
