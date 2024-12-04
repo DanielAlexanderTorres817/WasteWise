@@ -15,26 +15,20 @@
             margin: 0;
             display: flex;
             height: 100vh;
+            gap: 10px; /* Adds a small space between the sidebar and the map */
             background-color: #f4f4f4;
         }
-        .map-container {
-            flex-grow: 1;
-        }
-        #map {
-            height: 100%;
-            width: 100%;
-        }
         .sidebar {
-            width: 30%;
+            width: 20%;
             padding: 20px;
             background-color: white;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* Space between filter buttons */
         }
         .filter-button {
-            display: block;
-            margin-top: 10px;
-            padding: 10px;
+            padding: 15px;
             background-color: #4CAF50;
             color: white;
             border: none;
@@ -48,17 +42,36 @@
         .filter-button:hover {
             background-color: #097fed;
         }
+        .map-container {
+            flex-grow: 1;
+            position: relative;
+        }
+        #map, #dsnyMap {
+            height: 100%;
+            width: 100%;
+        }
+        #dsnyMap {
+            display: none; /* Hidden by default */
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
     </style>
 </head>
 <body>
     <div class="sidebar">
         <h2>Filters</h2>
         <button id="restroomButton" class="filter-button" onclick="setFilter('restroom')">Show Restrooms</button>
-        <button id="trashBinButton" class="filter-button" onclick="setFilter('trash bin')">Show Trash Bins</button>
-        <button id="allButton" class="filter-button active" onclick="setFilter('all')">Show All</button>
+        <button id="trashBinButton" class="filter-button" onclick="showDsnyMap()">Show Trash Bins</button>
     </div>
     <div class="map-container">
         <div id="map"></div>
+        <iframe 
+            id="dsnyMap" 
+            allow="geolocation" 
+            src="https://data.cityofnewyork.us/dataset/DSNY-Litter-Basket-Map-/d6m8-cwh9/embed?width=800&height=600" 
+            style="border:0;">
+        </iframe>
     </div>
 
     <script>
@@ -77,13 +90,7 @@
             removeOutsideVisibleBounds: true
         });
 
-        let currentFilter = 'all'; // Track the current filter
-
-        markerClusterGroup.on('clusterclick', function (event) {
-            const cluster = event.layer;
-            map.fitBounds(cluster.getBounds(), { maxZoom: map.getZoom() + 2 });
-            event.preventDefault();
-        });
+        let currentFilter = 'restroom'; // Track the current filter
 
         function fetchMarkers(bounds, filter) {
             fetch('/get_markers', {
@@ -126,12 +133,12 @@
             .catch(console.error);
         }
 
-
-
-
-
         function setFilter(type) {
             currentFilter = type;
+
+            // Show Leaflet map and hide DSNY map
+            document.getElementById('map').style.display = 'block';
+            document.getElementById('dsnyMap').style.display = 'none';
 
             // Fetch and apply the new filter
             fetchMarkers(map.getBounds(), currentFilter);
@@ -143,17 +150,23 @@
 
             if (type === 'restroom') {
                 document.getElementById('restroomButton').classList.add('active');
-            } else if (type === 'trash bin') {
-                document.getElementById('trashBinButton').classList.add('active');
-            } else if (type === 'all') {
-                document.getElementById('allButton').classList.add('active');
             }
         }
 
+        function showDsnyMap() {
+            // Show DSNY map and hide Leaflet map
+            document.getElementById('map').style.display = 'none';
+            document.getElementById('dsnyMap').style.display = 'block';
 
+            // Update button styles
+            document.querySelectorAll('.filter-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            document.getElementById('trashBinButton').classList.add('active');
+        }
 
+        // Initialize the map with restroom markers
         map.on('moveend', () => fetchMarkers(map.getBounds(), currentFilter));
-
         fetchMarkers(map.getBounds(), currentFilter);
     </script>
 </body>
